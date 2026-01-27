@@ -1,0 +1,13 @@
+name: 05-2-filters activity types
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main 
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: display echo message 
+        run: echo "test event type pull request"
