@@ -32,4 +32,4 @@ jobs:
     environment: ${{ inputs.target }}
     steps: 
       - name: Deploy 
-        run: Deploying to ${{ inputs.target }}"
+        run: echo "Deploying to ${{ inputs.target }}"
