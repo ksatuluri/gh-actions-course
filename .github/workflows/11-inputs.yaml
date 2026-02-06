@@ -27,7 +27,7 @@ jobs:
   deploy: 
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ inputs.dryrun == 'false'}} 
+    if: ${{ inputs.dryrun }} 
     environment: ${{ inputs.target }}
     steps: 
       - name: Deploy 
