@@ -17,7 +17,7 @@ jobs:
   deploy: 
     runs-on: ubuntu-latest
     needs: build 
-    if: ${{ outputs.build.status }}
+    if: ${{ needs.build.status }}
     steps:
       - name: deploy
         run: echo "deploying..."
