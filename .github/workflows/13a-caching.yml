@@ -1,0 +1,78 @@
+name: Multiple jobs for caching 
+on: 
+  workflow_dispatch:
+    inputs: 
+      user-cache: 
+        type: boolean
+        default: true 
+        description: Whether to execute cache step or not 
+      
+      node-version:
+        type: choice
+        default: 20.x
+        description: node js version
+        options:
+          - 18.x
+          - 20.x
+          - 21.x 
+jobs:
+  install-deps:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 13-Caching/react-app
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v3 
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Calculate the key 
+        id: cache-key 
+        run: echo "CACHE_KEY=deps-node-modules-${{hashFiles('13-Caching/react-app/package-lock.json')}}" >> $GITHUB_OUTPUTS
+
+      - name: Download Cached dependencies 
+        uses: actions/cache@v3
+        with:
+          key: ${{ outputs.cache-key.CACHE_KEY }}
+          path: 13-Caching/react-app/node_modules
+
+      - name: Install dependencies 
+        run: npm ci
+  linting: 
+    runs-on: ubuntu-latest
+    needs: install-deps 
+    if: ${{ install-deps }} 
+    defaults:
+      run: 
+        working-directory: 13-Caching/react-app
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4 
+        
+      - name: Setup node 
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+      - name: Download cached dependencies 
+        uses: actions/cache@v3 
+        with: 
+          key: ${{ needs.install-deps.outputs.CACHE_KEY }}
+
+      - name: Testing
+        run: npm run test
+
+      - name: Linting 
+        run: echo "Lintting..."
+
+  bild: 
+    runs-on: ubuntu-latest
+    needs: install-deps 
+    steps:
+      - name: Download cached dependencies 
+        uses: actions/cache@v3
+        with: 
+          key: ${{ needs.install-deps.outputs.CACHE_KEY }}
