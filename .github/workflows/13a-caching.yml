@@ -21,6 +21,8 @@ jobs:
     defaults:
       run:
         working-directory: 13-Caching/react-app
+    outputs:
+      deps-cache-key: ${{ steps.cache-key.outpus.CACHE_KEY }}
     steps: 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -32,12 +34,12 @@ jobs:
 
       - name: Calculate the key 
         id: cache-key 
-        run: echo "CACHE_KEY=deps-node-modules-${{hashFiles('13-Caching/react-app/package-lock.json')}}" >> $GITHUB_OUTPUT
+        run: echo "CACHE_KEY=deps-node-modules-${{hashFiles('13-Caching/react-app/package-lock.json')}}" >> "$GITHUB_OUTPUT"
 
       - name: Download Cached dependencies 
         uses: actions/cache@v3
         with:
-          key: ${{ outputs.cache-key.CACHE_KEY }}
+          key: ${{ outputs.deps-cache-key.CACHE_KEY }}
           path: 13-Caching/react-app/node_modules
 
       - name: Install dependencies 
@@ -58,9 +60,11 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Download cached dependencies 
+        if: ${{ inputs.user-key }}
         uses: actions/cache@v3 
         with: 
-          key: ${{ jobs.install-deps.outputs.CACHE_KEY }}
+          key: ${{ needs.install-deps.outputs.CACHE_KEY }}
+          path: 13-Caching/react-app/node_modules
 
       - name: Testing
         run: npm run test
