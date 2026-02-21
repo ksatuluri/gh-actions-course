@@ -64,7 +64,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Download cached dependencies 
-        if: ${{ inputs.user-key }}
+        if: ${{ inputs.user-cache}}
         uses: actions/cache@v3 
         with: 
           key: ${{ needs.install-deps.outputs.CACHE_KEY }}
